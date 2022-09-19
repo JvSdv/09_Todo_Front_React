@@ -178,6 +178,9 @@ function App() {
          <Modal show={showModalLogin}>
             <Modal.Header>
                <Modal.Title>Login</Modal.Title>
+               <h6 className='ms-2'>
+                  Utilize o email: admin@gmail.com e a senha: admin <br></br> Para testar o sistema
+               </h6>
             </Modal.Header>
             <Modal.Body>
                <Form
@@ -204,7 +207,7 @@ function App() {
                      />
                   </Form.Group>
 
-                  <Button variant='primary' type='submit'>
+                  <Button variant='primary' type='submit' className='mt-3'>
                      Entrar
                   </Button>
                </Form>
