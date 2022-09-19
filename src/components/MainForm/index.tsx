@@ -20,14 +20,14 @@ export function MainForm({ adicionou, setAdicionou }: Props) {
    } */
 
    const [error, setError] = useState('');
+
+   const [categories, setCategories] = useState<Category[]>([]);
    const [form, setForm] = useState<CreateTask>({
       title: '',
       description: '',
       datetime: new Date(),
       category_id: 1,
    });
-   const [categories, setCategories] = useState<Category[]>([]);
-
    /* Category = {
     id: number;
     title: string;

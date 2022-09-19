@@ -33,7 +33,8 @@ Route.delete("/categories/:id", "CategoriesController.delete").middleware(
 */
 import axios from 'axios';
 import { Tasks, Category, CreateTask } from '../types/tasks';
-const BaseUrl = 'http://127.0.0.1:3333';
+/* const BaseUrl = 'http://127.0.0.1:3333'; */
+const BaseUrl = 'https://understood-crowd-production.up.railway.app';
 
 //pegar o token do localStorage e validar se o token é válido
 export function getToken(): string {
@@ -43,6 +44,13 @@ export function getToken(): string {
 export default class Api {
    async login(email: string, password: string) {
       return await axios.post(`${BaseUrl}/login`, {
+         email,
+         password,
+      });
+   }
+   async signUp(name: string, email: string, password: string) {
+      return await axios.post(`${BaseUrl}/singup`, {
+         name,
          email,
          password,
       });

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 //prettier-ignore
-import { Container, Row, Col, Form, Button, Table, Card, CardGroup, Modal, ModalBody } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Table, Card, CardGroup, Modal, ModalBody, Pagination } from 'react-bootstrap';
 import { Item } from './types/item';
 import { filterListByMonth, getCurrentYearMonthDay } from './helpers/dateFilter';
 import { TableArea } from './components/TableArea';
@@ -27,36 +27,16 @@ function App() {
    const [tasks, setTasks] = useState<Task[]>([]);
 
    const [meta, setMeta] = useState<meta>();
+   const [email, setEmail] = useState<string>('admin@gmail.com');
+   const [password, setPassword] = useState<string>('admin');
 
-   const [signupForm, setSignupForm] = useState<TypeSignUp | {}>({});
+   const [signupForm, setSignupForm] = useState<TypeSignUp>({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+   });
    const [adicionar, setAdicionar] = useState<boolean>(false);
-   //
-   //Antigo de item:
-   /*const [list, setList] = useState<Item[]>([]);
-   const [filteredList, setFilteredList] = useState<Item[]>([]);
-    useEffect(() => {
-      const localList = localStorage.getItem('list');
-      if (localList) {
-         //transformar o string date em um Date
-         const localListParsed = JSON.parse(localList);
-         localListParsed.forEach((item: Item) => {
-            item.date = new Date(item.date);
-         });
-         setList(localListParsed);
-      }
-   }, []);
-
-   //salvar no localStorage o array de itens, primeiro puxar depois salvar
-   useEffect(() => {
-      localStorage.setItem('list', JSON.stringify(list));
-   }, [list]);
-
-   useEffect(() => {
-      setFilteredList(filterListByMonth(list, date));
-   }, [list, date]); */
-   ///
-   ///
-   ///
 
    //FUNÇÃO DE CONTROLE
    useEffect(() => {
@@ -109,7 +89,6 @@ function App() {
       const password = (e.target as any).elements[1].value;
       api.login(email, password)
          .then((res) => {
-            console.log(res, res.data);
             setToken(res.data.token);
             setShowModalLogin(false);
          })
@@ -121,8 +100,21 @@ function App() {
    //handleSignup
    function handleSignup() {
       //validar as senhas //**
+      if (signupForm.password === signupForm.confirmPassword) {
+         console.log('senhas iguais');
+         api.signUp(signupForm.name, signupForm.email, signupForm.password)
+            .then((res) => {
+               console.log(res.data.response);
+               setToken(res.data.token);
+               setShowModalSignup(false);
+            })
+            .catch((err) => {
+               console.log(err);
+            });
+      } else {
+         alert('As senhas não conferem');
+      }
    }
-
    return (
       <>
          <style>{`
@@ -158,26 +150,28 @@ function App() {
             <Row className='shadow-lg bg-light rounded mt-3 mb-3'>
                <TableArea tasks={tasks} adicionou={adicionar} setAdicionou={setAdicionar} />
             </Row>
-            {/* fazer um botao para setar a lista em filterlist para ver todos os itens */}
-            <Button
-               variant='primary'
-               className='ms-0'
-               onClick={() => {
-                  setFilteredList(list);
-               }}
-            >
-               Ver todos os itens
-            </Button>
-            {/* fazer um botao para voltar com a lista filtrada */}
-            <Button
-               variant='primary'
-               className='ms-3'
-               onClick={() => {
-                  setFilteredList(filterListByMonth(list, date));
-               }}
-            >
-               Voltar
-            </Button>
+
+            {/* Paginação */}
+            <div className='d-flex align-content-center justify-content-between'>
+               <Pagination>
+                  <Pagination.First onClick={() => setPage(meta!.first_page)} />
+                  <Pagination.Prev onClick={() => setPage(page - 1)} />
+                  <Pagination.Item>{page}</Pagination.Item>
+                  <Pagination.Next onClick={() => setPage(page + 1)} />
+                  <Pagination.Last onClick={() => setPage(meta!.last_page)} />
+               </Pagination>
+               {/* fazer um botao para sair */}
+               <Button
+                  variant='primary'
+                  className='mb-3'
+                  onClick={() => {
+                     localStorage.removeItem('token');
+                     setShowModalLogin(true);
+                  }}
+               >
+                  Sair
+               </Button>
+            </div>
          </Container>
 
          {/* Modal de login */}
@@ -193,11 +187,21 @@ function App() {
                >
                   <Form.Group controlId='formBasicEmail'>
                      <Form.Label>Email</Form.Label>
-                     <Form.Control type='email' placeholder='Digite seu email' />
+                     <Form.Control
+                        type='email'
+                        placeholder='Digite seu email'
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                     />
                   </Form.Group>
                   <Form.Group controlId='formBasicPassword'>
                      <Form.Label>Senha</Form.Label>
-                     <Form.Control type='password' placeholder='Digite sua senha' />
+                     <Form.Control
+                        type='password'
+                        placeholder='Digite sua senha'
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                     />
                   </Form.Group>
 
                   <Button variant='primary' type='submit'>
@@ -256,7 +260,7 @@ function App() {
                         }}
                      />
                   </Form.Group>
-                  <Form.Group controlId='formBasicPassword'>
+                  <Form.Group controlId='formBasicPassword2'>
                      <Form.Label>Confirmar senha</Form.Label>
                      <Form.Control
                         type='password'
